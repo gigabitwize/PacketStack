@@ -5,7 +5,10 @@ package io.vawke.packetstack;
  */
 public class ServerMain {
 
+    private static StackService service;
+
     public static void main(String[] args) {
-        System.out.println("main\n");
+        service = new StackService();
+        service.start();
     }
 }
