@@ -105,7 +105,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
             PipelineGroup group = pipelineEnd.connectedPipelines();
             group.perform(pipeline -> {
                 if (!pipeline.closed())
-                    pipeline.movePipelineEnd();
+                    pipeline.movePipelineEnding(null);
             });
         });
 

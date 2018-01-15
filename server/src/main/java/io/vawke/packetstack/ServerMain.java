@@ -11,4 +11,8 @@ public class ServerMain {
         service = new StackService();
         service.start();
     }
+
+    public static StackService getService() {
+        return service;
+    }
 }

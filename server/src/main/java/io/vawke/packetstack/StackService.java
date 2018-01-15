@@ -1,44 +1,30 @@
 package io.vawke.packetstack;
 
-import io.nerfnet.packetstack.pipeline.PipelineGroup;
-import io.nerfnet.packetstack.pipeline.RemotePipeline;
-import io.nerfnet.packetstack.pipeline.packet.Packet;
+import io.nerfnet.packetstack.pipeline2.PipelineEndGroup;
+import io.nerfnet.packetstack.pipeline2.object.Packet;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
-
-import java.util.Collections;
-import java.util.Map;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 
 /**
  * Created by Giovanni on 14/01/2018.
  */
 public class StackService {
 
-    private final PipelineGroup pipelineGroup;
+    private final PipelineEndGroup pipelineEndings;
 
     private final EventLoopGroup eventBossGroup;
     private final EventLoopGroup eventWorkerGroup;
 
-    public StackService() {
-        RemotePipeline testPipeline = new RemotePipeline() {
-            @Override
-            protected void handle(Packet packet) {
-                System.out.println("Received packet on pipeline-" + getRemote());
-            }
-
-            @Override
-            protected String getRemote() {
-                return "eu0001";
-            }
-        };
-
-        this.pipelineGroup = PipelineGroup.of(Collections.singletonList(testPipeline));
+    StackService() {
+        this.pipelineEndings = new PipelineEndGroup(0); // 0 = host group.
         this.eventBossGroup = new NioEventLoopGroup(5);
         this.eventWorkerGroup = new NioEventLoopGroup(5);
     }
@@ -46,21 +32,28 @@ public class StackService {
     void start() {
         System.out.println("Starting PacketStack service..");
 
-        // test
-        pipelineGroup.all().get(0).loadClass(Packet.class);
-        pipelineGroup.all().get(0).loadClass(Map.class);
-
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel socketChannel) throws Exception {
-                ChannelPipeline channelPipeline = socketChannel.pipeline();
-                pipelineGroup.all().forEach(pipeline -> {
-                    pipeline.getClasses().forEach(clazz -> {
-                        channelPipeline.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(clazz.getClassLoader())));
-                    });
+        // TODO clean-up and implement packet protocol, this is here for testing so ignore.
+        ServerBootstrap bootstrap = new ServerBootstrap()
+                .channel(NioServerSocketChannel.class)
+                .group(eventBossGroup, eventWorkerGroup)
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        ChannelPipeline pipeline = socketChannel.pipeline();
+                        pipeline
+                                .addLast(new ObjectEncoder())
+                                .addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(Packet.class.getClassLoader())))
+                                .addLast(new PipelineEndLauncher() {
+                                    @Override
+                                    public StackService service() {
+                                        return ServerMain.getService();
+                                    }
+                                });
+                    }
                 });
-            }
-        });
+    }
+
+    public PipelineEndGroup endingPipelines() {
+        return pipelineEndings;
     }
 }

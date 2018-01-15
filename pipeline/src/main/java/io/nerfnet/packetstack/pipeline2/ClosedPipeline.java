@@ -11,4 +11,11 @@ public interface ClosedPipeline {
      * @return The identifier.
      */
     String deadPipeline();
+
+    /**
+     * Returns the time of when the {@link Pipeline} has been closed.
+     *
+     * @return Time.
+     */
+    String closedAt();
 }

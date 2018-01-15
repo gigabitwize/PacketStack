@@ -13,7 +13,14 @@ public interface Pipeline<E> {
     String identifier();
 
     /**
-     * Transfer incoming data to a {@link PipelineEnd} which then handles the data.
+     * Returns the {@link PipelineEnd} of this pipeline.
+     *
+     * @return The ending of this pipeline.
+     */
+    PipelineEnd ending();
+
+    /**
+     * Transfers incoming data to a {@link PipelineEnd} which then handles the data.
      *
      * @param data The data that aims for the end of a pipeline.
      * @param end  The ending pipeline which the data has to be transported to.
@@ -24,9 +31,10 @@ public interface Pipeline<E> {
     /**
      * Moves the ending of this pipeline to a new {@link PipelineEnd}.
      *
+     * @param newEnd The new {@link PipelineEnd}.
      * @return itself connected to a new {@link PipelineEnd}
      */
-    Pipeline<E> movePipelineEnd();
+    Pipeline<E> movePipelineEnding(PipelineEnd newEnd);
 
     /**
      * Closes this pipeline and returns a {@link ClosedPipeline}.
