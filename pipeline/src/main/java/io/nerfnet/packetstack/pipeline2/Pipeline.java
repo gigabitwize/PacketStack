@@ -1,5 +1,10 @@
 package io.nerfnet.packetstack.pipeline2;
 
+import io.nerfnet.packetstack.pipeline2.object.QueuedPacket;
+
+import java.util.List;
+import java.util.UUID;
+
 /**
  * Created by Giovanni on 15/01/2018.
  */
@@ -49,4 +54,19 @@ public interface Pipeline<E> {
      * @return State
      */
     boolean closed();
+
+    /**
+     * Returns the queued packets on this pipeline.
+     *
+     * @return List of {@link QueuedPacket}
+     */
+    List<QueuedPacket> queuedPackets();
+
+    /**
+     * Returns whether a packet with a specific {@link UUID} is already queued
+     *
+     * @param gridId The grid ID as UUID.
+     * @return bool
+     */
+    boolean packetInQueue(UUID gridId);
 }

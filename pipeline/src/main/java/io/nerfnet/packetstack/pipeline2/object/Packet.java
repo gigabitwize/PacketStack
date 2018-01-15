@@ -5,11 +5,14 @@ import org.apache.commons.lang.SerializationUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Created by Giovanni on 15/01/2018.
  */
 public class Packet implements Serializable {
+
+    private final UUID gridId = UUID.randomUUID();
 
     private String pipeline;
     private int requestedEnding;
@@ -52,6 +55,15 @@ public class Packet implements Serializable {
      */
     public int getRequestedEnding() {
         return requestedEnding;
+    }
+
+    /**
+     * Returns the ID of the packet on the pipeline grid, used to prevent duplication and handling the same packet multiple times.
+     *
+     * @return Grid ID.
+     */
+    public UUID getGridId() {
+        return gridId;
     }
 
     public void setCurrentPipeline(@Nonnull SimplePipeline pipeline) {

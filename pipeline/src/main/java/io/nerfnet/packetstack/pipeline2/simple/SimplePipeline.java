@@ -9,6 +9,7 @@ import io.nerfnet.packetstack.pipeline2.object.QueuedPacket;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Giovanni on 15/01/2018.
@@ -40,6 +41,8 @@ public class SimplePipeline implements Pipeline<Packet> {
     public Pipeline<Packet> transfer(Packet data, PipelineEnd end) {
         if (closed)
             return this;
+
+        if (packetInQueue(data.getGridId())) return this;
 
         data.setCurrentPipeline(this);
 
@@ -79,5 +82,19 @@ public class SimplePipeline implements Pipeline<Packet> {
     @Override
     public boolean closed() {
         return closed;
+    }
+
+    @Override
+    public List<QueuedPacket> queuedPackets() {
+        return queuedPackets;
+    }
+
+    @Override
+    public boolean packetInQueue(UUID gridId) {
+        for (QueuedPacket queuedPacket : queuedPackets) {
+            if (queuedPacket.getPacket().getGridId().toString().equalsIgnoreCase(gridId.toString()))
+                return true;
+        }
+        return false;
     }
 }
