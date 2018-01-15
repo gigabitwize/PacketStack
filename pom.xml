@@ -13,6 +13,7 @@
         <module>database</module>
         <module>client</module>
         <module>pipeline</module>
+        <module>common</module>
     </modules>
 
     <dependencies>
