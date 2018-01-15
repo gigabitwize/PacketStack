@@ -32,6 +32,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
 
     @Override
     public boolean remove(Object o) {
+        if (onLockedThread()) return false;
         if (o instanceof Integer) {
             int identifier = (int) o;
             if (!pipelineEndMap.containsKey(identifier))
@@ -52,6 +53,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
 
     @Override
     public void clear() {
+        if (onLockedThread()) return;
         pipelineEndMap.clear();
         closedThreads.clear();
     }
@@ -86,7 +88,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
 
     @Override
     public Optional<PipelineEnd> find(@Nonnull Integer keyId) {
-        if (closedThreads.contains(Thread.currentThread()))
+        if (onLockedThread())
             return Optional.empty();
 
         return Optional.ofNullable(pipelineEndMap.get(keyId));
@@ -94,12 +96,14 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
 
     @Override
     public Group<Integer, PipelineEnd> perform(Consumer<PipelineEnd> action) {
+        if (onLockedThread()) return this;
         pipelineEndMap.values().forEach(action);
         return this;
     }
 
     @Override
     public Group<Integer, PipelineEnd> flush() {
+        if (onLockedThread()) return this;
         // Move all pipelines to a new PipelineEnd
         pipelineEndMap.values().forEach(pipelineEnd -> {
             PipelineGroup group = pipelineEnd.connectedPipelines();
@@ -115,6 +119,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
 
     @Override
     public Group<Integer, PipelineEnd> close(Thread thread) {
+        if (onLockedThread()) return this;
         if (thread == creator) return this;
         closedThreads.add(thread);
         return this;
@@ -123,6 +128,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
     @Override
     public Group<Integer, PipelineEnd> closeCurrentThread() {
         if (Thread.currentThread() == creator) return this;
+        if (onLockedThread()) return this;
         closedThreads.add(Thread.currentThread());
         return this;
     }

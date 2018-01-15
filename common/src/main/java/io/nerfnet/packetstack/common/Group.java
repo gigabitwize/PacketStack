@@ -72,4 +72,13 @@ public interface Group<K, E> extends Set<E> {
      * @return Immutable collection of closed threads.
      */
     ImmutableCollection<Thread> closedThreads();
+
+    /**
+     * Returns whether the current thread is in a locked state.
+     *
+     * @return bool
+     */
+    default boolean onLockedThread() {
+        return closedThreads().contains(Thread.currentThread());
+    }
 }

@@ -34,6 +34,7 @@ public class PipelineGroup extends AbstractSet<Pipeline> implements Group<String
 
     @Override
     public boolean remove(Object o) {
+        if(onLockedThread()) return false;
         if (o instanceof String) {
             String identifier = (String) o;
             if (!pipelineMap.containsKey(identifier))
@@ -54,6 +55,7 @@ public class PipelineGroup extends AbstractSet<Pipeline> implements Group<String
 
     @Override
     public void clear() {
+        if (onLockedThread()) return;
         pipelineMap.clear();
         closedThreads.clear();
     }
@@ -88,7 +90,7 @@ public class PipelineGroup extends AbstractSet<Pipeline> implements Group<String
 
     @Override
     public Optional<Pipeline> find(@Nonnull String keyId) {
-        if (closedThreads.contains(Thread.currentThread()))
+        if (onLockedThread())
             return Optional.empty();
 
         return Optional.ofNullable(pipelineMap.get(keyId));
@@ -96,12 +98,14 @@ public class PipelineGroup extends AbstractSet<Pipeline> implements Group<String
 
     @Override
     public Group<String, Pipeline> perform(Consumer<Pipeline> action) {
+        if (onLockedThread()) return this;
         pipelineMap.values().forEach(action);
         return this;
     }
 
     @Override
     public Group<String, Pipeline> flush() {
+        if (onLockedThread()) return this;
         pipelineMap.values().forEach(Pipeline::close);
 
         // Flush closed threads
@@ -111,6 +115,7 @@ public class PipelineGroup extends AbstractSet<Pipeline> implements Group<String
 
     @Override
     public Group<String, Pipeline> close(Thread thread) {
+        if (onLockedThread()) return this;
         if (thread == creator) return this;
         closedThreads.add(thread);
         return this;
@@ -119,6 +124,7 @@ public class PipelineGroup extends AbstractSet<Pipeline> implements Group<String
     @Override
     public Group<String, Pipeline> closeCurrentThread() {
         if (Thread.currentThread() == creator) return this;
+        if (onLockedThread()) return this;
         closedThreads.add(Thread.currentThread());
         return this;
     }
