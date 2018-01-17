@@ -1,5 +1,6 @@
 package io.nerfnet.packetstack.pipeline2.simple;
 
+import io.nerfnet.packetstack.data.DataCacheGroup;
 import io.nerfnet.packetstack.pipeline2.Pipeline;
 import io.nerfnet.packetstack.pipeline2.PipelineEnd;
 import io.nerfnet.packetstack.pipeline2.PipelineGroup;
@@ -8,19 +9,21 @@ import io.netty.channel.Channel;
 /**
  * Created by Giovanni on 15/01/2018.
  */
-public class SimplePipelineEnd implements PipelineEnd {
+public class PacketPipelineEnd implements PipelineEnd {
 
     private final int id;
     private final Channel channel;
     private PipelineGroup connectedPipelines;
 
-    public SimplePipelineEnd(int id, Channel channel, PipelineGroup group) {
+    private final DataCacheGroup cacheGroup = new DataCacheGroup(-1);
+
+    public PacketPipelineEnd(int id, Channel channel, PipelineGroup group) {
         this.id = id;
         this.channel = channel;
         this.connectedPipelines = group;
     }
 
-    public SimplePipelineEnd(int id, Channel channel) {
+    public PacketPipelineEnd(int id, Channel channel) {
         this.id = id;
         this.channel = channel;
     }
@@ -50,5 +53,10 @@ public class SimplePipelineEnd implements PipelineEnd {
         connectedPipelines.remove(pipeline);
         channel.writeAndFlush("$close::" + pipeline.identifier());
         return this;
+    }
+
+    @Override
+    public DataCacheGroup getDataGroup() {
+        return cacheGroup;
     }
 }

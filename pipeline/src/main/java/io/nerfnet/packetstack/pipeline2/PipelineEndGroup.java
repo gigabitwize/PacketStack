@@ -23,6 +23,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
 
     public PipelineEndGroup(int id) {
         this.id = id;
+        this.creator = Thread.currentThread();
     }
 
     @Override
@@ -113,7 +114,7 @@ public class PipelineEndGroup extends AbstractSet<PipelineEnd> implements Group<
             });
         });
 
-        closedThreads.clear();
+        clear();
         return this;
     }
 

@@ -1,5 +1,6 @@
 package io.nerfnet.packetstack.pipeline2;
 
+import io.nerfnet.packetstack.data.DataCacheGroup;
 import io.netty.channel.Channel;
 
 /**
@@ -42,4 +43,11 @@ public interface PipelineEnd {
      * @return The channel.
      */
     Channel channel();
+
+    /**
+     * Returns the {@link DataCacheGroup} of this ending pipeline.
+     *
+     * @return The data group.
+     */
+    DataCacheGroup getDataGroup();
 }

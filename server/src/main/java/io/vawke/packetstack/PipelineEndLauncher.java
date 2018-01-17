@@ -1,8 +1,8 @@
 package io.vawke.packetstack;
 
 import io.nerfnet.packetstack.pipeline2.PipelineEnd;
-import io.nerfnet.packetstack.pipeline2.simple.SimplePipeline;
-import io.nerfnet.packetstack.pipeline2.simple.SimplePipelineEnd;
+import io.nerfnet.packetstack.pipeline2.simple.PacketPipeline;
+import io.nerfnet.packetstack.pipeline2.simple.PacketPipelineEnd;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -35,7 +35,7 @@ public abstract class PipelineEndLauncher extends ChannelInboundHandlerAdapter i
                     }
 
                     if (values[3].equalsIgnoreCase("pend")) {
-                        SimplePipelineEnd end = new SimplePipelineEnd(0, ctx.channel());
+                        PacketPipelineEnd end = new PacketPipelineEnd(0, ctx.channel());
                         service().endingPipelines().add(end);
                     } else if (values[3].equalsIgnoreCase("def")) {
                         int endId = Integer.valueOf(values[4]);
@@ -46,7 +46,7 @@ public abstract class PipelineEndLauncher extends ChannelInboundHandlerAdapter i
                             return;
                         }
 
-                        SimplePipeline pipeline = new SimplePipeline(identifier, pipelineEnd.get());
+                        PacketPipeline pipeline = new PacketPipeline(identifier, pipelineEnd.get());
                         pipelineEnd.get().connectedPipelines().add(pipeline);
                     }
                 }
